@@ -37,9 +37,9 @@ package heat
     parameter Real C = 1;
   equation
     connect(const.y, kapacita1.c) annotation(Line(points = {{-61, 76}, {-26, 76}, {-26, 78}, {-26, 78}}, color = {0, 0, 127}));
-    connect(pq1, odpor1.pq1) annotation(Line(points = {{-90, 0}, {-65, 0}, {-65, -5}, {-18, -5}}));
+    connect(q_in, odpor1.pq1) annotation(Line(points = {{-90, 0}, {-65, 0}, {-65, -5}, {-18, -5}}));
     connect(odpor1.pq2, kapacita1.pq1) annotation(Line(points = {{14, -5}, {14, -5}, {14, 18}, {0, 18}, {0, 30}, {0, 30}}));
-    connect(odpor1.pq2, pq2) annotation(Line(points = {{14, -5}, {90, -5}, {90, -6}, {90, -6}}));
+    connect(odpor1.pq2, q_out) annotation(Line(points = {{14, -5}, {90, -5}, {90, -6}, {90, -6}}));
     annotation(Diagram(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 0.1, grid = {2, 2})), Icon(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 0.1, grid = {2, 2}), graphics = {Text(origin = {-15, 19}, extent = {{-43, 27}, {71, -59}}, textString = "%name"), Rectangle(origin = {2, -3}, extent = {{-74, 79}, {74, -79}})}));
   end DpBlock;
 
@@ -96,8 +96,8 @@ package heat
     DpEq dpEq1 annotation(Placement(visible = true, transformation(origin = {-18, -52}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     DpBlock dpBlock1 annotation(Placement(visible = true, transformation(origin = {-12, 66}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   equation
-    connect(tlak1.pq1, dpBlock1.pq1) annotation(Line(points = {{-77, 59}, {-54, 59}, {-54, 66}, {-20, 66}, {-20, 66}}));
-    connect(dpBlock1.pq2, zatez1.pq1) annotation(Line(points = {{-3, 66}, {6, 66}, {6, 60}, {28, 60}, {28, 60}}));
+    connect(tlak1.pq1, dpBlock1.q_in) annotation(Line(points = {{-77, 59}, {-54, 59}, {-54, 66}, {-20, 66}, {-20, 66}}));
+    connect(dpBlock1.q_out, zatez1.pq1) annotation(Line(points = {{-3, 66}, {6, 66}, {6, 60}, {28, 60}, {28, 60}}));
     connect(tlak3.pq1, dpEq1.pq1) annotation(Line(points = {{-71, -53}, {-38, -53}, {-38, -52}, {-26, -52}, {-26, -52}}));
     connect(dpEq1.pq2, zatez2.pq1) annotation(Line(points = {{-9, -52}, {16, -52}, {16, -56}, {32, -56}, {32, -56}}));
     connect(zatez1.pq2, tlak2.pq1) annotation(Line(points = {{44, 60}, {51, 60}, {51, 55}, {59, 55}}));
@@ -116,7 +116,7 @@ package heat
     connect(pq1, dpBlockArr[1].q_in);
     connect(dpBlockArr[num].q_out, pq2);
     for i in 1:num - 1 loop
-      connect(dpBlockArr[i].q_in, dpBlockArr[i + 1].q_out);
+      connect(dpBlockArr[i].q_out, dpBlockArr[i + 1].q_in);
     end for;
     annotation(Icon(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 0.1, grid = {2, 2}), graphics = {Text(origin = {-3, -68}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid, extent = {{-53, -56}, {53, 56}}, textString = "Ceva_Block_%name"), Ellipse(origin = {-1, 16}, extent = {{-55, 66}, {55, -66}}, endAngle = 360)}));
   end cevaDpBlock;
@@ -127,12 +127,12 @@ package heat
     parameter Real paramR = 3;
     parameter Real paramC = 1;
     parameter Integer num = 1;
-    DpEq dpEqArr[num](each R = paramR, each C = paramC);
+    DpEq dpEqArr[num](each r = paramR, each v0 = paramC);
   equation
-    connect(pq1, dpEqArr[1].q_in);
-    connect(dpEqArr[num].q_out, pq2);
+    connect(pq1, dpEqArr[1].pq1);
+    connect(dpEqArr[num].pq2, pq2);
     for i in 1:num - 1 loop
-      connect(dpEqArr[i].q_in, dpEqArr[i + 1].q_out);
+      connect(dpEqArr[i].pq2, dpEqArr[i + 1].pq1);
     end for;
     annotation(Icon(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 0.1, grid = {2, 2}), graphics = {Text(origin = {1, -68}, extent = {{-53, -56}, {53, 56}}, textString = "Ceva_EQ_%name"), Ellipse(origin = {4, 15}, fillColor = {255, 170, 255}, fillPattern = FillPattern.Solid, extent = {{-54, 63}, {54, -63}}, endAngle = 360)}));
   end cevaDpEq;
@@ -163,7 +163,7 @@ package heat
     Modelica.Blocks.Sources.Sine sine1(amplitude = 1, freqHz = 1, offset = 1.1) annotation(Placement(visible = true, transformation(origin = {-64, 52}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     tlak tlak1(p = 1) annotation(Placement(visible = true, transformation(origin = {-86, -14}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     kapacita kapacita1(v0 = 2) annotation(Placement(visible = true, transformation(origin = {-11, 43}, extent = {{-19, -19}, {19, 19}}, rotation = 0)));
-    cevaDpEq cevaDpEq1 annotation(Placement(visible = true, transformation(origin = {38, -4}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
+    cevaDpEq cevaDpEq1(paramR = 2, paramC = 2, num = 2) annotation(Placement(visible = true, transformation(origin = {38, -4}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
     odpor odpor1(r = 1) annotation(Placement(visible = true, transformation(origin = {-55, -17}, extent = {{-13, -13}, {13, 13}}, rotation = 0)));
     chlopen chlopen2 annotation(Placement(visible = true, transformation(origin = {-24, -16}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     odpor odpor2(r = 1) annotation(Placement(visible = true, transformation(origin = {71, -3}, extent = {{-13, -13}, {13, 13}}, rotation = 0)));
