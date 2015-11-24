@@ -28,11 +28,13 @@ package heat
   end odpor;
 
   model DpBlock
-    pq pq1 annotation(Placement(visible = true, transformation(origin = {-90, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-86, -2}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    pq pq2 annotation(Placement(visible = true, transformation(origin = {90, -2}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {90, -2}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    odpor odpor1(r = 3) annotation(Placement(visible = true, transformation(origin = {-1, -5}, extent = {{-19, -19}, {19, 19}}, rotation = 0)));
-    kapacita kapacita1(v0 = 1) annotation(Placement(visible = true, transformation(origin = {-2, 56}, extent = {{-30, -30}, {30, 30}}, rotation = 0)));
+    pq q_in annotation(Placement(visible = true, transformation(origin = {-90, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-86, -2}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    pq q_out annotation(Placement(visible = true, transformation(origin = {90, -2}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {90, -2}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    odpor odpor1(r = R) annotation(Placement(visible = true, transformation(origin = {-1, -5}, extent = {{-19, -19}, {19, 19}}, rotation = 0)));
+    kapacita kapacita1(v0 = C) annotation(Placement(visible = true, transformation(origin = {-2, 56}, extent = {{-30, -30}, {30, 30}}, rotation = 0)));
     Modelica.Blocks.Sources.Constant const(k = 1) annotation(Placement(visible = true, transformation(origin = {-72, 76}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    parameter Real R = 3;
+    parameter Real C = 1;
   equation
     connect(const.y, kapacita1.c) annotation(Line(points = {{-61, 76}, {-26, 76}, {-26, 78}, {-26, 78}}, color = {0, 0, 127}));
     connect(pq1, odpor1.pq1) annotation(Line(points = {{-90, 0}, {-65, 0}, {-65, -5}, {-18, -5}}));
@@ -57,7 +59,7 @@ package heat
   connector pq
     Real p;
     flow Real q;
-    annotation(Diagram(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 0.1, grid = {2, 2})), Icon(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 0.1, grid = {2, 2}), graphics = {Rectangle(origin = {-1, 2}, fillPattern = FillPattern.Solid, extent = {{-95, 94}, {95, -94}})}));
+    annotation(Diagram(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 0.1, grid = {2, 2})), Icon(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 0.1, grid = {2, 2}), graphics = {Rectangle(origin = {-1, 2}, fillPattern = FillPattern.Solid, extent = {{-95, 94}, {95, -94}}), Text(origin = {-63, -99}, extent = {{-5, -1}, {111, -39}}, textString = "%name")}));
   end pq;
 
   model tlak
@@ -102,5 +104,103 @@ package heat
     connect(zatez2.pq2, tlak4.pq1) annotation(Line(points = {{48, -56}, {54, -56}, {54, -58}, {62, -58}, {62, -58}}));
     annotation(Icon(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 0.1, grid = {2, 2})), Diagram(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 0.1, grid = {2, 2})));
   end comparDPs;
+
+  model cevaDpBlock
+    pq pq1 annotation(Placement(visible = true, transformation(origin = {-86, 4}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-78, 4}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    pq pq2 annotation(Placement(visible = true, transformation(origin = {86, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {78, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    parameter Real paramR = 3;
+    parameter Real paramC = 1;
+    parameter Integer num = 1;
+    DpBlock dpBlockArr[num](each R = paramR, each C = paramC);
+  equation
+    connect(pq1, dpBlockArr[1].q_in);
+    connect(dpBlockArr[num].q_out, pq2);
+    for i in 1:num - 1 loop
+      connect(dpBlockArr[i].q_in, dpBlockArr[i + 1].q_out);
+    end for;
+    annotation(Icon(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 0.1, grid = {2, 2}), graphics = {Text(origin = {-3, -68}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid, extent = {{-53, -56}, {53, 56}}, textString = "Ceva_Block_%name"), Ellipse(origin = {-1, 16}, extent = {{-55, 66}, {55, -66}}, endAngle = 360)}));
+  end cevaDpBlock;
+
+  model cevaDpEq
+    pq pq1 annotation(Placement(visible = true, transformation(origin = {-86, 4}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-78, 4}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    pq pq2 annotation(Placement(visible = true, transformation(origin = {86, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {78, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    parameter Real paramR = 3;
+    parameter Real paramC = 1;
+    parameter Integer num = 1;
+    DpEq dpEqArr[num](each R = paramR, each C = paramC);
+  equation
+    connect(pq1, dpEqArr[1].q_in);
+    connect(dpEqArr[num].q_out, pq2);
+    for i in 1:num - 1 loop
+      connect(dpEqArr[i].q_in, dpEqArr[i + 1].q_out);
+    end for;
+    annotation(Icon(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 0.1, grid = {2, 2}), graphics = {Text(origin = {1, -68}, extent = {{-53, -56}, {53, 56}}, textString = "Ceva_EQ_%name"), Ellipse(origin = {4, 15}, fillColor = {255, 170, 255}, fillPattern = FillPattern.Solid, extent = {{-54, 63}, {54, -63}}, endAngle = 360)}));
+  end cevaDpEq;
+
+  model chlopen
+    pq pq1 annotation(Placement(visible = true, transformation(origin = {-84, 2}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-84, 2}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    pq pq2 annotation(Placement(visible = true, transformation(origin = {86, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {86, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    Real q;
+    Real dp;
+    Real s;
+    Boolean on;
+  equation
+    pq1.q + pq2.q = 0;
+    pq1.p - pq2.p = dp;
+    pq1.q = q;
+    on = s > 0;
+    if on then
+      dp = 0;
+      q = s;
+    else
+      dp = s;
+      q = 0;
+    end if;
+    annotation(Diagram(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 0.1, grid = {2, 2})), Icon(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 0.1, grid = {2, 2}), graphics = {Polygon(origin = {-4, 0.02}, fillColor = {170, 0, 0}, fillPattern = FillPattern.Solid, points = {{-56, 79.9808}, {-56, -80.0192}, {44, -2.01921}, {44, -80.0192}, {56, -80.0192}, {56, 79.9808}, {44, 79.9808}, {44, 11.9808}, {-56, 79.9808}})}));
+  end chlopen;
+
+  model finalModel
+    Modelica.Blocks.Sources.Sine sine1(amplitude = 1, freqHz = 1, offset = 1.1) annotation(Placement(visible = true, transformation(origin = {-64, 52}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    tlak tlak1(p = 1) annotation(Placement(visible = true, transformation(origin = {-86, -14}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    kapacita kapacita1(v0 = 2) annotation(Placement(visible = true, transformation(origin = {-11, 43}, extent = {{-19, -19}, {19, 19}}, rotation = 0)));
+    cevaDpEq cevaDpEq1 annotation(Placement(visible = true, transformation(origin = {38, -4}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
+    odpor odpor1(r = 1) annotation(Placement(visible = true, transformation(origin = {-55, -17}, extent = {{-13, -13}, {13, 13}}, rotation = 0)));
+    chlopen chlopen2 annotation(Placement(visible = true, transformation(origin = {-24, -16}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    odpor odpor2(r = 1) annotation(Placement(visible = true, transformation(origin = {71, -3}, extent = {{-13, -13}, {13, 13}}, rotation = 0)));
+    tlak tlak2(p = 2) annotation(Placement(visible = true, transformation(origin = {72, -46}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    chlopen chlopen1 annotation(Placement(visible = true, transformation(origin = {6, -14}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  equation
+    connect(cevaDpEq1.pq2, odpor2.pq1) annotation(Line(points = {{50, -4}, {58, -4}, {58, -2}, {58, -2}}));
+    connect(chlopen1.pq2, cevaDpEq1.pq1) annotation(Line(points = {{15, -14}, {18, -14}, {18, -4}, {26, -4}, {26, -4}}));
+    connect(kapacita1.pq1, chlopen2.pq2) annotation(Line(points = {{-11, 26}, {-12, 26}, {-12, -6}, {-8, -6}, {-8, -16}, {-14, -16}, {-14, -16}}));
+    connect(chlopen2.pq2, chlopen1.pq1) annotation(Line(points = {{-15, -16}, {-10, -16}, {-10, -14}, {-2, -14}, {-2, -14}, {-2, -14}}));
+    connect(odpor2.pq2, tlak2.pq1) annotation(Line(points = {{81, -3}, {90, -3}, {90, -55}, {81, -55}}));
+    connect(odpor1.pq2, chlopen2.pq1) annotation(Line(points = {{-45, -17}, {-31, -17}, {-31, -16}, {-32, -16}}));
+    connect(tlak1.pq1, odpor1.pq1) annotation(Line(points = {{-77, -23}, {-72, -23}, {-72, -17}, {-67, -17}}));
+    connect(sine1.y, kapacita1.c) annotation(Line(points = {{-53, 52}, {-42, 52}, {-42, 56}, {-28, 56}, {-28, 56}}, color = {0, 0, 127}));
+    annotation(Icon(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 0.1, grid = {2, 2})), Diagram(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 0.1, grid = {2, 2})));
+  end finalModel;
+
+  model experimentModel
+    Modelica.Blocks.Sources.Sine sine1(amplitude = 1, freqHz = 1, offset = 1.1) annotation(Placement(visible = true, transformation(origin = {-64, 52}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    tlak tlak1(p = 1) annotation(Placement(visible = true, transformation(origin = {-86, -14}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    kapacita kapacita1(v0 = 2) annotation(Placement(visible = true, transformation(origin = {-11, 43}, extent = {{-19, -19}, {19, 19}}, rotation = 0)));
+    cevaDpBlock cevaDpBlock1 annotation(Placement(visible = true, transformation(origin = {38, -4}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
+    odpor odpor1(r = 1) annotation(Placement(visible = true, transformation(origin = {-55, -17}, extent = {{-13, -13}, {13, 13}}, rotation = 0)));
+    chlopen chlopen2 annotation(Placement(visible = true, transformation(origin = {-24, -16}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    odpor odpor2(r = 1) annotation(Placement(visible = true, transformation(origin = {71, -3}, extent = {{-13, -13}, {13, 13}}, rotation = 0)));
+    tlak tlak2(p = 2) annotation(Placement(visible = true, transformation(origin = {72, -46}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    chlopen chlopen1 annotation(Placement(visible = true, transformation(origin = {6, -14}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  equation
+    connect(cevaDpBlock1.pq2, odpor2.pq1) annotation(Line(points = {{50, -4}, {58, -4}, {58, -2}, {58, -2}}));
+    connect(chlopen1.pq2, cevaDpBlock1.pq1) annotation(Line(points = {{15, -14}, {18, -14}, {18, -4}, {26, -4}, {26, -4}}));
+    connect(kapacita1.pq1, chlopen2.pq2) annotation(Line(points = {{-11, 26}, {-12, 26}, {-12, -6}, {-8, -6}, {-8, -16}, {-14, -16}, {-14, -16}}));
+    connect(chlopen2.pq2, chlopen1.pq1) annotation(Line(points = {{-15, -16}, {-10, -16}, {-10, -14}, {-2, -14}, {-2, -14}, {-2, -14}}));
+    connect(odpor2.pq2, tlak2.pq1) annotation(Line(points = {{81, -3}, {90, -3}, {90, -55}, {81, -55}}));
+    connect(odpor1.pq2, chlopen2.pq1) annotation(Line(points = {{-45, -17}, {-31, -17}, {-31, -16}, {-32, -16}}));
+    connect(tlak1.pq1, odpor1.pq1) annotation(Line(points = {{-77, -23}, {-72, -23}, {-72, -17}, {-67, -17}}));
+    connect(sine1.y, kapacita1.c) annotation(Line(points = {{-53, 52}, {-42, 52}, {-42, 56}, {-28, 56}, {-28, 56}}, color = {0, 0, 127}));
+    annotation(Icon(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 0.1, grid = {2, 2})), Diagram(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 0.1, grid = {2, 2})));
+  end experimentModel;
   annotation(Icon(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 0.1, grid = {2, 2})), Diagram(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 0.1, grid = {2, 2})));
 end heat;
