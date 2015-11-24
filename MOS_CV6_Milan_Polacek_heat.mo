@@ -163,15 +163,15 @@ package heat
     Modelica.Blocks.Sources.Sine sine1(amplitude = 1, freqHz = 1, offset = 1.1) annotation(Placement(visible = true, transformation(origin = {-64, 52}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     tlak tlak1(p = 1) annotation(Placement(visible = true, transformation(origin = {-86, -14}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     kapacita kapacita1(v0 = 2) annotation(Placement(visible = true, transformation(origin = {-11, 43}, extent = {{-19, -19}, {19, 19}}, rotation = 0)));
-    cevaDpEq cevaDpEq1(paramR = 2, paramC = 2, num = 2) annotation(Placement(visible = true, transformation(origin = {38, -4}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
     odpor odpor1(r = 1) annotation(Placement(visible = true, transformation(origin = {-55, -17}, extent = {{-13, -13}, {13, 13}}, rotation = 0)));
     chlopen chlopen2 annotation(Placement(visible = true, transformation(origin = {-24, -16}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     odpor odpor2(r = 1) annotation(Placement(visible = true, transformation(origin = {71, -3}, extent = {{-13, -13}, {13, 13}}, rotation = 0)));
     tlak tlak2(p = 2) annotation(Placement(visible = true, transformation(origin = {72, -46}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     chlopen chlopen1 annotation(Placement(visible = true, transformation(origin = {6, -14}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    cevaDpEq cevaDpEq1(paramR = 1, paramC = 1, num = 4) annotation(Placement(visible = true, transformation(origin = {38, -6}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
   equation
-    connect(cevaDpEq1.pq2, odpor2.pq1) annotation(Line(points = {{50, -4}, {58, -4}, {58, -2}, {58, -2}}));
-    connect(chlopen1.pq2, cevaDpEq1.pq1) annotation(Line(points = {{15, -14}, {18, -14}, {18, -4}, {26, -4}, {26, -4}}));
+    connect(chlopen1.pq2, cevaDpEq1.pq1) annotation(Line(points = {{15, -14}, {18, -14}, {18, -5}, {26, -5}}));
+    connect(cevaDpEq1.pq2, odpor2.pq1) annotation(Line(points = {{50, -6}, {58, -6}, {58, -2}}));
     connect(kapacita1.pq1, chlopen2.pq2) annotation(Line(points = {{-11, 26}, {-12, 26}, {-12, -6}, {-8, -6}, {-8, -16}, {-14, -16}, {-14, -16}}));
     connect(chlopen2.pq2, chlopen1.pq1) annotation(Line(points = {{-15, -16}, {-10, -16}, {-10, -14}, {-2, -14}, {-2, -14}, {-2, -14}}));
     connect(odpor2.pq2, tlak2.pq1) annotation(Line(points = {{81, -3}, {90, -3}, {90, -55}, {81, -55}}));
@@ -185,7 +185,7 @@ package heat
     Modelica.Blocks.Sources.Sine sine1(amplitude = 1, freqHz = 1, offset = 1.1) annotation(Placement(visible = true, transformation(origin = {-64, 52}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     tlak tlak1(p = 1) annotation(Placement(visible = true, transformation(origin = {-86, -14}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     kapacita kapacita1(v0 = 2) annotation(Placement(visible = true, transformation(origin = {-11, 43}, extent = {{-19, -19}, {19, 19}}, rotation = 0)));
-    cevaDpBlock cevaDpBlock1 annotation(Placement(visible = true, transformation(origin = {38, -4}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
+    cevaDpBlock cevaDpBlock1(paramR = 2, paramC = 2, num = 1) annotation(Placement(visible = true, transformation(origin = {38, -4}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
     odpor odpor1(r = 1) annotation(Placement(visible = true, transformation(origin = {-55, -17}, extent = {{-13, -13}, {13, 13}}, rotation = 0)));
     chlopen chlopen2 annotation(Placement(visible = true, transformation(origin = {-24, -16}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     odpor odpor2(r = 1) annotation(Placement(visible = true, transformation(origin = {71, -3}, extent = {{-13, -13}, {13, 13}}, rotation = 0)));
